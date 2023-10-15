@@ -8,7 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 
-constexpr double kWantedFramesPerSecond = 60.0;
+constexpr double kWantedFramesPerSecond = 10.0;
 constexpr size_t kFpsBufferSize = 120;
 
 constexpr double kWantedSecondsPerFrame = 1.0 / kWantedFramesPerSecond;
@@ -21,7 +21,7 @@ class RefreshRate {
 
   void Reset();
 
-  void ResetFrameTime();
+  double ResetFrameTime();
 
   [[nodiscard]] bool IsTimeForNewFrame() const;
 

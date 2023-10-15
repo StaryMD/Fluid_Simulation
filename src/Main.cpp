@@ -1,32 +1,35 @@
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
+#include <array>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "Common.hpp"
+#include "Physics.hpp"
 #include "utility/EventHandler.hpp"
 #include "utility/RefreshRate.hpp"
 
-constexpr size_t kWorldWidth = 120;
-constexpr size_t kWorldHeight = 100;
-
-constexpr size_t kPixelSize = 8;
-
-constexpr size_t kScreenWidth = kWorldWidth * kPixelSize;
-constexpr size_t kScreenHeight = kWorldHeight * kPixelSize;
-
 void HandleInput(sf::RenderWindow& window);
 
-void DrawWorld(const std::vector<float>& densities, sf::Uint8* screen_pixels);
+void FillWorld(std::vector<Cell>& particles);
+
+void DrawWorld(const std::vector<Cell>& particles, sf::Uint8* screen_pixels);
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(kScreenWidth, kScreenHeight), "Fluid Simulation");
   window.setVerticalSyncEnabled(true);
 
-  std::vector<float> densities(kWorldWidth * kWorldHeight);
+  std::array<std::vector<Cell>, 2> particles = {std::vector<Cell>((kWorldWidth + 2) * (kWorldHeight + 2)),
+                                                std::vector<Cell>((kWorldWidth + 2) * (kWorldHeight + 2))};
 
   std::vector<sf::Uint8> screen_pixels(kScreenWidth * kScreenHeight * 4);
 
@@ -38,18 +41,19 @@ int main() {
 
   sf::Sprite screen_sprite(screen_texture);
 
-  for (float& density : densities) {
-    density = static_cast<float>(rand()) / RAND_MAX;
-  }
+  FillWorld(particles[0]);
 
   RefreshRate refresh_rate;
   while (window.isOpen()) {
     if (refresh_rate.IsTimeForNewFrame()) {
-      refresh_rate.ResetFrameTime();
+      const float elapsed_time = static_cast<float>(refresh_rate.ResetFrameTime());
+      window.setTitle("Fluid Simulation" + std::to_string(refresh_rate.GetFpsInfo().first));
 
       HandleInput(window);
 
-      DrawWorld(densities, screen_pixels.data());
+      Solve(particles[0], particles[1], elapsed_time);
+
+      DrawWorld(particles[0], screen_pixels.data());
 
       screen_texture.update(screen_pixels.data());
 
@@ -61,13 +65,24 @@ int main() {
   return 0;
 }
 
-void DrawWorld(const std::vector<float>& densities, sf::Uint8* screen_pixels) {
+void FillWorld(std::vector<Cell>& particles) {
+  for (size_t world_y = 30; world_y <= 80; ++world_y) {
+    for (size_t world_x = 30; world_x <= 80; ++world_x) {
+      const size_t particle_idx = world_y * (kWorldWidth + 2) + world_x;
+      const float rand_value = 1;
+
+      particles[particle_idx] = {rand_value, sf::Vector2f(0, 0)};
+    }
+  }
+}
+
+void DrawWorld(const std::vector<Cell>& particles, sf::Uint8* screen_pixels) {
   sf::Color* screen_pixels_true = reinterpret_cast<sf::Color*>(screen_pixels);
 
   for (size_t screen_y = 0; screen_y < kScreenHeight; ++screen_y) {
     for (size_t screen_x = 0; screen_x < kScreenWidth; ++screen_x) {
-      const float density = densities[(screen_y / kPixelSize) * kWorldWidth + (screen_x / kPixelSize)];
-      const uint32_t grayness = static_cast<unsigned>(std::round(density * 256));
+      const Cell particle = particles[(screen_y / kPixelSize + 1) * (kWorldWidth + 2) + (screen_x / kPixelSize + 1)];
+      const uint32_t grayness = static_cast<unsigned>(std::round(particle.density * 255));
       const sf::Color color_value = sf::Color(grayness, grayness, grayness);
 
       *(screen_pixels_true++) = color_value;
