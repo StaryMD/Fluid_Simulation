@@ -66,12 +66,19 @@ int main() {
 }
 
 void FillWorld(std::vector<Cell>& particles) {
-  for (size_t world_y = 30; world_y <= 80; ++world_y) {
-    for (size_t world_x = 30; world_x <= 80; ++world_x) {
+  for (size_t world_y = kWorldHeight / 3; world_y < kWorldHeight * 2 / 3; ++world_y) {
+    for (size_t world_x = kWorldWidth / 3; world_x < kWorldWidth * 2 / 3; ++world_x) {
       const size_t particle_idx = world_y * (kWorldWidth + 2) + world_x;
       const float rand_value = 1;
 
-      particles[particle_idx] = {rand_value, sf::Vector2f(0, 0)};
+      particles[particle_idx] = {rand_value, sf::Vector2f(10, -10)};
+    }
+  }
+  for (size_t world_y = 0; world_y < kWorldHeight; ++world_y) {
+    for (size_t world_x = 0; world_x < kWorldWidth; ++world_x) {
+      const size_t particle_idx = world_y * (kWorldWidth + 2) + world_x;
+
+      particles[particle_idx] = {particles[particle_idx].density, sf::Vector2f(1, -1)};
     }
   }
 }

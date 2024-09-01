@@ -5,10 +5,12 @@
 
 #include "Common.hpp"
 
-void Diffuse(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, float delta_time);
+void DensityDiffuse(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, float delta_time);
 
-void Advect(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, float delta_time);
+void DensityAdvect(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, float delta_time);
 
 void Solve(std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, float delta_time);
+
+void BoundSet();
 
 #endif  //PHYSICS_H_

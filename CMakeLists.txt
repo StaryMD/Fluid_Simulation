@@ -12,18 +12,11 @@ set(CMAKE_COLOR_MAKEFILE
     ON
     CACHE BOOL "")
 
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
-
 set(MY_CPP_VERSION
     17
     CACHE STRING "")
 set(MY_OPENCL_VERSION
     300
-    CACHE STRING "")
-set(MY_SFML_VERSION
-    2.6
     CACHE STRING "")
 
 set(MY_SFML_COMPONENTS graphics window system)
@@ -51,16 +44,14 @@ set_property(TARGET ${EXECUTABLE_NAME} PROPERTY CXX_EXTENSIONS OFF)
 target_include_directories(${EXECUTABLE_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/include/)
 
-# find_package(OpenCL REQUIRED)
-# target_link_libraries(${EXECUTABLE_NAME} OpenCL::OpenCL)
+# find_package(OpenCL REQUIRED) target_link_libraries(${EXECUTABLE_NAME}
+# OpenCL::OpenCL)
 
-# target_compile_definitions(
-#   ${EXECUTABLE_NAME}
-#   PRIVATE -DCL_HPP_ENABLE_EXCEPTIONS
-#   PRIVATE -DCL_HPP_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION}
-#   PRIVATE -DCL_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION})
+# target_compile_definitions( ${EXECUTABLE_NAME} PRIVATE
+# -DCL_HPP_ENABLE_EXCEPTIONS PRIVATE
+# -DCL_HPP_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION} PRIVATE
+# -DCL_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION})
 
-set(SFML_STATIC_LIBRARIES TRUE)
 find_package(
   SFML ${MY_SFML_VERSION}
   COMPONENTS ${MY_SFML_COMPONENTS}
@@ -70,6 +61,6 @@ target_link_libraries(${EXECUTABLE_NAME} ${MY_SFML_LIBS})
 target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Werror
                                                   -pedantic -O3)
 
-if (EXISTS assets)
+if(EXISTS assets)
   file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 endif()

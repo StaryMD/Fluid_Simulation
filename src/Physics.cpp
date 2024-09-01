@@ -5,15 +5,17 @@
 
 #include "Common.hpp"
 
+void BoundSet() {}
+
 void Solve(std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, const float delta_time) {
-  Diffuse(particles_in, particles_out, delta_time);
+  DensityDiffuse(particles_in, particles_out, delta_time);
   std::swap(particles_in, particles_out);
 
-  Advect(particles_in, particles_out, delta_time);
+  DensityAdvect(particles_in, particles_out, delta_time);
   std::swap(particles_in, particles_out);
 }
 
-void Diffuse(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, const float delta_time) {
+void DensityDiffuse(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, const float delta_time) {
   const float rate = kDiffusionRate * delta_time * kWorldHeight * kWorldWidth;
 
   for (size_t iter = 0; iter < kDiffusionIterationCount; ++iter) {
@@ -31,10 +33,12 @@ void Diffuse(const std::vector<Cell>& particles_in, std::vector<Cell>& particles
         particles_out[particle_idx].density = new_particle_density;
       }
     }
+
+    BoundSet();
   }
 }
 
-void Advect(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, const float delta_time) {
+void DensityAdvect(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_out, const float delta_time) {
   for (size_t world_y = 1; world_y <= kWorldHeight; ++world_y) {
     for (size_t world_x = 1; world_x <= kWorldWidth; ++world_x) {
       const size_t particle_idx = GetIndex(world_y, world_x);
@@ -63,4 +67,6 @@ void Advect(const std::vector<Cell>& particles_in, std::vector<Cell>& particles_
       particles_out[particle_idx].density = left_density + right_density;
     }
   }
+
+  BoundSet();
 }
